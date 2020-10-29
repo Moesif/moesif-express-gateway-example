@@ -1,0 +1,62 @@
+http:
+  port: 8080
+admin:
+  port: 9876
+  host: localhost
+apiEndpoints:
+  test-api:
+    host: '127.0.0.1'
+    paths: ['/ip']
+  api:
+    host: localhost
+    paths: ['/']
+  send:
+    host: localhost
+    paths: ['/comments', '/comments/*', '/todos']
+serviceEndpoints:
+  test-api:
+    url: 'https://httpbin.org'
+  apiRoot:
+    url: 'https://jsonplaceholder.typicode.com/posts'
+  emailSend:
+    url: 'https://jsonplaceholder.typicode.com'
+policies:
+  - basic-auth
+  - cors
+  - expression
+  - key-auth
+  - log
+  - proxy
+  - rate-limit
+  - moesif
+pipelines:
+  default:
+    apiEndpoints:
+      - api
+    policies:
+      - moesif:
+      - key-auth:
+      - proxy:
+          - action:
+              serviceEndpoint: apiRoot
+              changeOrigin: true
+  emailSendPipeline:
+    apiEndpoints:
+      - send
+    policies:
+      - moesif:
+      - key-auth:
+      - proxy:
+          - action:
+              serviceEndpoint: emailSend
+              changeOrigin: true
+  test-apiPipeline:
+    apiEndpoints:
+      - test-api
+    policies:
+      - moesif:
+      - key-auth:
+      - proxy:
+          - action:
+              serviceEndpoint: test-api
+              changeOrigin: true
